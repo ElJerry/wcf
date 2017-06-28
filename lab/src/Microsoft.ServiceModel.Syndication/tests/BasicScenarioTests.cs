@@ -12,10 +12,11 @@ namespace Microsoft.ServiceModel.Syndication.Tests
     using Microsoft.ServiceModel.Syndication;
     using System.Xml;
     using System.IO;
+    using System.Threading.Tasks;
 
     public static class BasicScenarioTests
     {
-                
+
         [Fact]
         public static void SyndicationFeed_CreateNewFeed()
         {
@@ -46,7 +47,7 @@ namespace Microsoft.ServiceModel.Syndication.Tests
         }
 
         [Fact]
-        public static void SyndicationFeed_Load_Write_Feed()
+        public static void SyndicationFeed_Load_Write_RSS_Feed()
         {
             string path = "SyndicationFeed-Load-Write.xml";
 
@@ -54,6 +55,35 @@ namespace Microsoft.ServiceModel.Syndication.Tests
             {
                 // *** SETUP *** \\\
                 XmlReader xmlr = XmlReader.Create(@"TestFeeds\SimpleRssFeed.xml");
+                SyndicationFeed sf = SyndicationFeed.Load(xmlr);
+                Assert.True(sf != null);
+
+                // *** EXECUTE *** \\
+                //Write the same feed that was read.
+                XmlWriter xmlw = XmlWriter.Create(path);
+                Rss20FeedFormatter atomFeed = new Rss20FeedFormatter(sf);
+                atomFeed.WriteTo(xmlw);
+                xmlw.Close();
+
+                // *** VALIDATE *** \\
+                Assert.True(File.Exists(path));
+            }
+            finally
+            {
+                // *** CLEANUP *** \\
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public static void SyndicationFeed_Load_Write_Atom_Feed()
+        {
+            string path = "SyndicationFeed-Load-Write-Atom.xml";
+
+            try
+            {
+                // *** SETUP *** \\\
+                XmlReader xmlr = XmlReader.Create(@"TestFeeds\SimpleAtomFeed.xml");
                 SyndicationFeed sf = SyndicationFeed.Load(xmlr);
                 Assert.True(sf != null);
 
@@ -73,8 +103,6 @@ namespace Microsoft.ServiceModel.Syndication.Tests
                 File.Delete(path);
             }
         }
-
-
         [Fact]
         public static void SyndicationFeed_Write_RSS_Atom()
         {
@@ -84,15 +112,15 @@ namespace Microsoft.ServiceModel.Syndication.Tests
             try
             {
                 // *** SETUP *** \\
-                 SyndicationFeed feed = new SyndicationFeed("Contoso News", "<div>Most recent news from Contoso</div>", new Uri("http://www.Contoso.com/news"), "123FeedID", DateTime.Now);
-            
+                SyndicationFeed feed = new SyndicationFeed("Contoso News", "<div>Most recent news from Contoso</div>", new Uri("http://www.Contoso.com/news"), "123FeedID", DateTime.Now);
+
                 //Add an author
                 SyndicationPerson author = new SyndicationPerson("jerry@Contoso.com");
                 feed.Authors.Add(author);
-            
+
                 //Create item
                 SyndicationItem item1 = new SyndicationItem("SyndicationFeed released for .net Core", "A lot of text describing the release of .net core feature", new Uri("http://Contoso.com/news/path"));
-            
+
                 //Add item to feed
                 List<SyndicationItem> feedList = new List<SyndicationItem> { item1 };
                 feed.Items = feedList;
@@ -100,17 +128,18 @@ namespace Microsoft.ServiceModel.Syndication.Tests
 
                 //add an image
                 feed.ImageUrl = new Uri("http://2.bp.blogspot.com/-NA5Jb-64eUg/URx8CSdcj_I/AAAAAAAAAUo/eCx0irI0rq0/s1600/bg_Contoso_logo3-20120824073001907469-620x349.jpg");
-            
+                //feed.ImageTitle = new TextSyndicationContent("Titulo loco");
+
                 feed.BaseUri = new Uri("http://mypage.com");
                 Console.WriteLine(feed.BaseUri);
 
                 // Write to XML > rss
-                
+
                 XmlWriter xmlwRss = XmlWriter.Create(RssPath);
                 Rss20FeedFormatter rssff = new Rss20FeedFormatter(feed);
 
                 // Write to XML > atom
-               
+
                 XmlWriter xmlwAtom = XmlWriter.Create(AtomPath);
                 Atom10FeedFormatter atomf = new Atom10FeedFormatter(feed);
 
@@ -129,9 +158,308 @@ namespace Microsoft.ServiceModel.Syndication.Tests
             finally
             {
                 // *** CLEANUP *** \\
-                File.Delete(RssPath);
-                File.Delete(AtomPath);            
+                //File.Delete(RssPath);
+                //File.Delete(AtomPath);
             }
-        }         
+        }
+
+        [Fact]
+        public static void SyndicationFeed_RSS20_Load_customImageDataInFeed()
+        {
+            // *** SETUP *** \\
+            XmlReader reader = XmlReader.Create(@"TestFeeds\RssFeedWithCustomImageName.xml");
+
+            // *** EXECUTE *** \\
+            SyndicationFeed sf = SyndicationFeed.Load(reader);
+
+            // *** ASSERT *** \\
+            Assert.True("The title is not the same to the original one" == sf.ImageTitle.Text);
+            Assert.True(sf.ImageLink.AbsoluteUri != sf.Links[0].GetAbsoluteUri().AbsoluteUri);
+
+            // *** CLEANUP *** \\
+            reader.Close();
+        }
+
+        [Fact]
+        public static void SyndicationFeed_RSS20_Write_customImageDataInFeed()
+        {
+            // *** SETUP *** \\
+            SyndicationFeed sf = new SyndicationFeed();
+            string feedTitle = "Feed title";
+            string imageTitle = "Image title";
+            string resultPath = "Rss20CustomImageDataFeedWritten.xml";
+
+            sf.Title = new TextSyndicationContent(feedTitle);
+            sf.ImageTitle = new TextSyndicationContent(imageTitle);
+            sf.ImageLink = new Uri("http://myimage.com");
+            sf.ImageUrl = new Uri("http://www.myownimagesrc.com");
+            XmlWriter writer = XmlWriter.Create(resultPath);
+            Rss20FeedFormatter rssff = sf.GetRss20Formatter();
+
+
+            try
+            {
+                // *** EXECUTE *** \\
+                rssff.WriteTo(writer);
+                writer.Close();
+
+                // *** ASSERT *** \\
+                Assert.True(File.Exists(resultPath));
+
+            }
+            finally
+            {
+                // *** CLEANUP *** \\
+                File.Delete(resultPath);
+            }
+        }
+
+        [Fact]
+        public static async Task SyndicationFeed_LoadAsync_Rss() {
+
+            // *** SETUP *** \\
+            XmlReaderSettings setting = new XmlReaderSettings();
+            setting.Async = true;
+            XmlReader reader = null;
+            Task<SyndicationFeed> rss = null;
+            try
+            {
+                // *** EXECUTE *** \\
+                reader = XmlReader.Create(@"TestFeeds\rssSpecExample.xml", setting);
+                rss = SyndicationFeed.LoadAsync(reader);
+                await Task.WhenAll(rss);
+
+                // *** ASSERT *** \\
+            }
+            finally
+            {
+                // *** CLEANUP *** \\
+                Assert.True(rss.Result.Items != null);
+                reader.Close();
+            }
+        }
+
+        [Fact]
+        public static async Task SyndicationFeed_LoadAsync_Atom()
+        {
+
+            // *** SETUP *** \\
+            XmlReaderSettings setting = new XmlReaderSettings();
+            setting.Async = true;
+            XmlReader reader = null;
+
+            try
+            {
+                reader = XmlReader.Create(@"TestFeeds\atom_spec_example.xml", setting);
+                // *** EXECUTE *** \\
+                Task<SyndicationFeed> atom = SyndicationFeed.LoadAsync(reader);
+                await Task.WhenAll(atom);
+                // *** ASSERT *** \\
+                Assert.True(atom.Result.Items != null);
+            }
+            finally
+            {
+                // *** CLEANUP *** \\
+                reader.Close();
+            }
+        }
+
+        [Fact]
+        public static void SyndicationFeed_Rss_TestDisjointItems()
+        {
+            // *** SETUP *** \\
+            XmlReader reader = XmlReader.Create(@"TestFeeds\RssDisjointItems.xml");
+
+            try
+            {
+                // *** EXECUTE *** \\
+                SyndicationFeed sf = SyndicationFeed.Load(reader);
+
+                // *** ASSERT *** \\
+                int count = 0;
+                foreach (var item in sf.Items)
+                {
+                    count++;
+                }
+
+                Assert.True(count == 2);
+            }
+            catch
+            {
+                // *** CLEANUP *** \\
+                reader.Close();
+            }
+        }
+
+
+        [Fact]
+        public static void SyndicationFeed_Atom_TestDisjointItems()
+        {
+            // *** SETUP *** \\
+            XmlReader reader = XmlReader.Create(@"TestFeeds\AtomDisjointItems.xml");
+
+            try
+            {
+                // *** EXECUTE *** \\
+                SyndicationFeed sf = SyndicationFeed.Load(reader);
+
+                // *** ASSERT *** \\
+                int count = 0;
+                foreach (var item in sf.Items)
+                {
+                    count++;
+                }
+
+                Assert.True(count == 2);
+            }
+            finally
+            {
+                // *** CLEANUP *** \\
+                reader.Close();
+            }
+        }
+
+        [Fact]
+        public static async Task SyndicationFeed_RSS_Optional_Documentation()
+        {
+            // *** SETUP *** \\
+            XmlReaderSettings setting = new XmlReaderSettings();
+            setting.Async = true;
+            XmlReader reader = null;
+            Task<SyndicationFeed> rss = null;
+            try
+            {
+                // *** EXECUTE *** \\
+                reader = XmlReader.Create(@"TestFeeds\rssSpecExample.xml", setting);
+                rss = SyndicationFeed.LoadAsync(reader);
+                await Task.WhenAll(rss);
+
+                // *** ASSERT *** \\
+                Assert.True(rss.Result.Documentation.GetAbsoluteUri().ToString() == "http://blogs.law.harvard.edu/tech/rss");
+            }
+            finally
+            {
+                // *** CLEANUP *** \\
+                Assert.True(rss.Result.Items != null);
+                reader.Close();
+            }
+        }
+
+        [Fact]
+        public static async Task SyndicationFeed_RSS_Optional_TimeToLiveTag()
+        {
+            // *** SETUP *** \\
+            XmlReaderSettings setting = new XmlReaderSettings();
+            setting.Async = true;
+            XmlReader reader = null;
+            Task<SyndicationFeed> rss = null;
+            try
+            {
+                // *** EXECUTE *** \\
+                reader = XmlReader.Create(@"TestFeeds\rssSpecExample.xml", setting);
+                rss = SyndicationFeed.LoadAsync(reader);
+                await Task.WhenAll(rss);
+
+                // *** ASSERT *** \\
+                Assert.True(rss.Result.TimeToLive == 60);
+            }
+            finally
+            {
+                // *** CLEANUP *** \\
+                Assert.True(rss.Result.Items != null);
+                reader.Close();
+            }
+        }
+
+        [Fact]
+        public static async Task SyndicationFeed_RSS_Optional_SkipHours()
+        {
+            // *** SETUP *** \\
+            XmlReaderSettings setting = new XmlReaderSettings();
+            setting.Async = true;
+            XmlReader reader = null;
+            Task<SyndicationFeed> rss = null;
+            try
+            {
+                // *** EXECUTE *** \\
+                reader = XmlReader.Create(@"TestFeeds\rssSpecExample.xml", setting);
+                rss = SyndicationFeed.LoadAsync(reader);
+                await Task.WhenAll(rss);
+
+                // *** ASSERT *** \\
+                Assert.True(rss.Result.SkipHours.Count == 3);
+            }
+            finally
+            {
+                // *** CLEANUP *** \\
+                Assert.True(rss.Result.Items != null);
+                reader.Close();
+            }
+        }
+
+        [Fact]
+        public static async Task SyndicationFeed_RSS_Optional_SkipDays()
+        {
+            // *** SETUP *** \\
+            XmlReaderSettings setting = new XmlReaderSettings();
+            setting.Async = true;
+            XmlReader reader = null;
+            Task<SyndicationFeed> rss = null;
+            try
+            {
+                // *** EXECUTE *** \\
+                reader = XmlReader.Create(@"TestFeeds\rssSpecExample.xml", setting);
+                rss = SyndicationFeed.LoadAsync(reader);
+                await Task.WhenAll(rss);
+
+                // *** ASSERT *** \\
+                Assert.True(rss.Result.SkipDays.Count == 2);
+                Assert.True(rss.Result.SkipDays[0] == "Saturday");
+                Assert.True(rss.Result.SkipDays[1] == "Sunday");
+            }
+            finally
+            {
+                // *** CLEANUP *** \\
+                Assert.True(rss.Result.Items != null);
+                reader.Close();
+            }
+        }
+
+        [Fact]
+        public static async Task SyndicationFeed_RSS_Optional_TextInput()
+        {
+            // *** SETUP *** \\
+            XmlReaderSettings setting = new XmlReaderSettings();
+            setting.Async = true;
+            XmlReader reader = null;
+            Task<SyndicationFeed> rss = null;
+            try
+            {
+                // *** EXECUTE *** \\
+                reader = XmlReader.Create(@"TestFeeds\rssSpecExample.xml", setting);
+                rss = SyndicationFeed.LoadAsync(reader);
+                await Task.WhenAll(rss);
+
+                // *** ASSERT *** \\
+                Assert.True(rss.Result.TextInput.Description == "Search Online");
+                Assert.True(rss.Result.TextInput.title == "Search");
+                Assert.True(rss.Result.TextInput.name == "q");
+                Assert.True(rss.Result.TextInput.link.GetAbsoluteUri().ToString() == "http://www.contoso.no/search?");
+            }
+            finally
+            {
+                // *** CLEANUP *** \\
+                Assert.True(rss.Result.Items != null);
+                reader.Close();
+            }
+        }
+
     }
 }
+
+#if TagsForTests
+// *** SETUP *** \\
+// *** EXECUTE *** \\
+// *** ASSERT *** \\
+// *** CLEANUP *** \\
+#endif
