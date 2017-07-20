@@ -15,7 +15,7 @@ namespace Microsoft.SyndicationFeed.Tests
         {
             using (XmlReader xmlReader = XmlReader.Create(@"..\..\..\TestFeeds\simpleAtomFeed.xml",new XmlReaderSettings { Async = true }))
             {
-                var reader = new Atom10FeedReader(xmlReader);
+                var reader = new AtomFeedReader(xmlReader);
                 while(await reader.Read())
                 {
                     ISyndicationContent content = await reader.ReadContent();
@@ -28,7 +28,7 @@ namespace Microsoft.SyndicationFeed.Tests
         {
             using (XmlReader xmlReader = XmlReader.Create(@"..\..\..\TestFeeds\simpleAtomFeed.xml", new XmlReaderSettings { Async = true }))
             {
-                var reader = new Atom10FeedReader(xmlReader);
+                var reader = new AtomFeedReader(xmlReader);
                 while (await reader.Read())
                 {
                     if(reader.ElementType == SyndicationElementType.Person)
@@ -44,7 +44,7 @@ namespace Microsoft.SyndicationFeed.Tests
         {
             using (XmlReader xmlReader = XmlReader.Create(@"..\..\..\TestFeeds\simpleAtomFeed.xml", new XmlReaderSettings { Async = true }))
             {
-                var reader = new Atom10FeedReader(xmlReader);
+                var reader = new AtomFeedReader(xmlReader);
                 int imagesRead = 0;
 
                 List<String> contentsOfImages = new List<string>();
@@ -69,7 +69,7 @@ namespace Microsoft.SyndicationFeed.Tests
         {
             using (XmlReader xmlReader = XmlReader.Create(@"..\..\..\TestFeeds\simpleAtomFeed.xml", new XmlReaderSettings { Async = true }))
             {
-                var reader = new Atom10FeedReader(xmlReader);
+                var reader = new AtomFeedReader(xmlReader);
                 while (await reader.Read())
                 {
                     if (reader.ElementType == SyndicationElementType.Category)
@@ -86,7 +86,7 @@ namespace Microsoft.SyndicationFeed.Tests
         {
             using (XmlReader xmlReader = XmlReader.Create(@"..\..\..\TestFeeds\simpleAtomFeed.xml", new XmlReaderSettings { Async = true }))
             {
-                var reader = new Atom10FeedReader(xmlReader);
+                var reader = new AtomFeedReader(xmlReader);
                 List<string> hrefs = new List<string>();
                 while (await reader.Read())
                 {
@@ -106,12 +106,12 @@ namespace Microsoft.SyndicationFeed.Tests
         {
             using (XmlReader xmlReader = XmlReader.Create(@"..\..\..\TestFeeds\simpleAtomFeed.xml", new XmlReaderSettings { Async = true }))
             {
-                var reader = new Atom10FeedReader(xmlReader);
+                var reader = new AtomFeedReader(xmlReader);
                 while (await reader.Read())
                 {
                     if (reader.ElementType == SyndicationElementType.Item)
                     {
-                        ISyndicationItem item = await reader.ReadItem();
+                        IAtomEntry item = await reader.ReadEntry();
                     }
                 }
             }

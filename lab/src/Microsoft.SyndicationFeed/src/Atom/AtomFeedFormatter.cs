@@ -10,7 +10,7 @@ using System.Xml;
 
 namespace Microsoft.SyndicationFeed
 {
-    public class Atom10FeedFormatter : ISyndicationFeedFormatter
+    public class AtomFeedFormatter : ISyndicationFeedFormatter
     {
         public ISyndicationCategory ParseCategory(string value)
         {
@@ -42,6 +42,11 @@ namespace Microsoft.SyndicationFeed
 
         public ISyndicationItem ParseItem(string value)
         {
+            return ParseEntry(value);
+        }
+
+        public virtual IAtomEntry ParseEntry(string value)
+        {
             if (string.IsNullOrEmpty(value))
             {
                 throw new ArgumentNullException(nameof(value));
@@ -50,7 +55,7 @@ namespace Microsoft.SyndicationFeed
             using (XmlReader reader = XmlReader.Create(new StringReader(value)))
             {
                 reader.MoveToContent();
-                return ParseItem(reader);
+                return ParseEntry(reader);
             }
         }
 
@@ -86,6 +91,11 @@ namespace Microsoft.SyndicationFeed
         public bool TryParseValue<T>(string value, out T result)
         {
             result = default(T);
+
+            if (value == null)
+            {
+                return false;
+            }
 
             Type type = typeof(T);
 
@@ -149,15 +159,15 @@ namespace Microsoft.SyndicationFeed
             {
                 switch (reader.LocalName)
                 {
-                    case Atom10Constants.NameTag:
+                    case AtomConstants.NameTag:
                         person.Name = reader.ReadElementContentAsString();
                         break;
 
-                    case Atom10Constants.EmailTag:
+                    case AtomConstants.EmailTag:
                         person.Email = reader.ReadElementContentAsString();
                         break;
 
-                    case Atom10Constants.UriTag:
+                    case AtomConstants.UriTag:
                         person.Uri = reader.ReadElementContentAsString();
                         break;
                 }
@@ -212,44 +222,41 @@ namespace Microsoft.SyndicationFeed
 
         private SyndicationLink ParseLink(XmlReader reader)
         {
+            //
+            // title
+            string title = reader.GetAttribute("title");
 
-            Uri uri = null;
+            // type
+            string type = reader.GetAttribute("type");
+
+            // length
             long length = 0;
-            string relationshipType = reader.Name;
+            TryParseValue(reader.GetAttribute("length"), out length);
 
-            string lenghtRead = reader.GetAttribute("length");
-            if (!string.IsNullOrEmpty(lenghtRead))
+            // href
+            Uri uri = null;
+            if (!TryParseValue(reader.GetAttribute("href"), out uri))
             {
-                TryParseValue(lenghtRead, out length);
+                throw new FormatException("Invalid href attribute format");
             }
 
-            string href = reader.GetAttribute("href");
-            if(string.IsNullOrEmpty(href))
+            // type
+            string rel = reader.GetAttribute("rel");
+
+            reader.Read(); // end
+
+            return new SyndicationLink(uri)
             {
-                throw new ArgumentNullException("The link does not contain href attribute.");
-            }
-
-            if (!TryParseValue(href ,out uri))
-            {
-                throw new FormatException("Unrecognized href format.");
-            }
-
-
-
-            SyndicationLink link = new SyndicationLink(uri)
-            {
-                Title = reader.GetAttribute("title"),
+                Title = title,
                 Length = length,
-                MediaType = reader.GetAttribute("type"),
-                RelationshipType = reader.GetAttribute("rel")
+                MediaType = type,
+                RelationshipType = rel ?? AtomConstants.AlternateTag
             };
-            reader.Read();
-            return link;            
         }
 
-        private SyndicationItem ParseItem(XmlReader reader)
+        private AtomEntry ParseEntry(XmlReader reader)
         {
-            SyndicationItem item = new SyndicationItem();
+            var item = new AtomEntry();
 
             bool isEmpty = reader.IsEmptyElement;
 
@@ -261,7 +268,7 @@ namespace Microsoft.SyndicationFeed
             return item;
         }
 
-        private void FillItems(SyndicationItem item, XmlReader reader)
+        private void FillItems(AtomEntry item, XmlReader reader)
         {
             var categories = new List<ISyndicationCategory>();
             var contributors = new List<ISyndicationPerson>();
@@ -270,6 +277,7 @@ namespace Microsoft.SyndicationFeed
             reader.ReadStartElement();
 
             string date;
+            DateTimeOffset dto;
 
             while (reader.IsStartElement())
             {
@@ -277,71 +285,75 @@ namespace Microsoft.SyndicationFeed
                 {
                     //
                     // Category
-                    case Atom10Constants.CategoryTag:
+                    case AtomConstants.CategoryTag:
                         SyndicationCategory category = ParseCategory(reader);
                         break;
                     //
                     // Content
-                    case Atom10Constants.ContentTag:
-                        reader.ReadOuterXml(); // Needs to be discussed.
+                    case AtomConstants.ContentTag:
+                        reader.ReadOuterXml(); // Needs to be discussed. ----------------------------
                         break;
 
                     //
                     // Author/Contributor
-                    case Atom10Constants.AuthorTag:
-                    case Atom10Constants.ContributorTag:
+                    case AtomConstants.AuthorTag:
+                    case AtomConstants.ContributorTag:
                         SyndicationPerson person = ParsePerson(reader);
                         contributors.Add(person);
                         break;
 
                     //
                     // Id
-                    case Atom10Constants.IdTag:
+                    case AtomConstants.IdTag:
                         item.Id = reader.ReadElementContentAsString();
                         break;
 
                     //
                     // Link
-                    case Atom10Constants.LinkTag:
+                    case AtomConstants.LinkTag:
                         SyndicationLink link = ParseLink(reader);
                         links.Add(link);
                         break;
 
                     //
                     // PublishedTag
-                    case Atom10Constants.PublishedTag:
+                    case AtomConstants.PublishedTag:
                         date = reader.ReadElementContentAsString();
+                        DateTimeUtils.TryParseAtom(date, out dto);
+                        item.Published = dto;
                         //parse the date
                         break;
 
                     //
                     // Rights
-                    case Atom10Constants.RightsTag:
-                        reader.ReadOuterXml();
+                    case AtomConstants.RightsTag:
+                        reader.ReadOuterXml();          // Needs to be discussed. ----------------------------
                         break;
 
                     //
                     // Source
-                    case Atom10Constants.SourceTag:
-                        reader.ReadOuterXml();
+                    case AtomConstants.SourceTag:
+                        reader.ReadOuterXml();             // Needs to be discussed. ----------------------------
                         break;
 
                     //
                     // Summary
-                    case Atom10Constants.SummaryTag:
+                    case AtomConstants.SummaryTag:
                         item.Description = reader.ReadElementContentAsString();
                         break;
 
                     //
                     // Title
-                    case Atom10Constants.TitleTag:
+                    case AtomConstants.TitleTag:
                         item.Title = reader.ReadElementContentAsString();
                         break;
 
                     //
                     // Updated
-                    case Atom10Constants.UpdatedTag:
-                        date = reader.ReadElementContentAsString();
+                    case AtomConstants.UpdatedTag:
+                        date = reader.ReadElementContentAsString();                        
+                        DateTimeUtils.TryParseAtom(date, out dto);
+                        item.LastUpdated = dto;
                         //parse the date
                         break;
 
