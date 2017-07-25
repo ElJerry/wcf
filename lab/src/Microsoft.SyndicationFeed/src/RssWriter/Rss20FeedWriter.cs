@@ -19,11 +19,22 @@ namespace Microsoft.SyndicationFeed
 
         public virtual Task WriteCategory(ISyndicationCategory category)
         {
+
+            if (string.IsNullOrEmpty(category.Name))
+            {
+                throw new FormatException("Category must have a name");
+            }
+
             return _writer.WriteElementStringAsync(null,Rss20Constants.CategoryTag,null, category.Name);            
         }
 
         public virtual Task WriteContent(ISyndicationContent content)
         {
+            if (string.IsNullOrEmpty(content.RawContent))
+            {
+                throw new FormatException("Content does not contain any data");
+            }
+
             return _writer.WriteRawAsync(content.RawContent);
         }
         
@@ -87,6 +98,12 @@ namespace Microsoft.SyndicationFeed
 
         public virtual async Task WriteLink(ISyndicationLink link)
         {
+
+            if(link.Uri == null)
+            {
+                throw new FormatException("Link's Uri can not be null");
+            }
+
             switch (link.RelationshipType)
             {
                 case Rss20Constants.AlternateLink:
