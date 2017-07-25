@@ -82,7 +82,7 @@ namespace Microsoft.SyndicationFeed
             //Write pubdate
             if(!item.Published.Equals(new DateTimeOffset()))
             {
-                _writer.WriteElementString(Rss20Constants.PubDateTag,item.Published.ToString());
+                _writer.WriteElementString(Rss20Constants.PubDateTag,item.Published.ToString("r"));
             }
         }
 
@@ -160,9 +160,9 @@ namespace Microsoft.SyndicationFeed
         public async Task WriteStartDocument()
         {
             await _writer.WriteStartDocumentAsync();
-            await _writer.WriteStartElementAsync(null, Rss20Constants.RssTag, null);
-            await _writer.WriteAttributeStringAsync(null,Rss20Constants.VersionTag, null, Rss20Constants.Version);
-            await _writer.WriteStartElementAsync(null, Rss20Constants.ChannelTag, null);
+            await _writer.WriteStartElementAsync(null, Rss20Constants.RssTag, null); // <Rss>
+            await _writer.WriteAttributeStringAsync(null,Rss20Constants.VersionTag, null, Rss20Constants.Version); // <Rss version="2">
+            await _writer.WriteStartElementAsync(null, Rss20Constants.ChannelTag, null); // <channel>
         }
 
         public async Task WriteEndDocument()

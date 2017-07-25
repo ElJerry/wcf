@@ -66,8 +66,7 @@ namespace Microsoft.SyndicationFeed.Tests
             }
             
             string res = sb.ToString();
-        }
-
-     
+            Assert.True(res == "<?xml version=\"1.0\" encoding=\"utf-16\"?><rss version=\"2.0\"><channel><title> My title </title><Example-Name>Value information</Example-Name><link>http://hello.com</link><category>sports</category><managingEditor>hero@test.com</managingEditor><item><title>Lorem ipsum 2017-07-06T20:25:00+00:00</title><link>http://example.com/test/1499372700</link><source url=\"http://www.quotationspage.com/data/qotd.rss\">Quotes of the Day</source><enclosure url=\"http://testpage.com\" length=\"123\" type=\"audio/mp3\" /><description>Lorem ipsum 2017-07-06T20:25:00+00:00</description><author>Author@email.com</author><category>Enterntainment</category><category>Sports</category><guid>http://example.com/test/1499372700</guid><pubDate>Thu, 06 Jul 2017 20:25:00 GMT</pubDate></item></channel></rss>");
+        }     
     }
 }

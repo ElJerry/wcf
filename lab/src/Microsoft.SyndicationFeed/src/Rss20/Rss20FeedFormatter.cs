@@ -201,7 +201,6 @@ namespace Microsoft.SyndicationFeed
             // Type
             string type = string.Empty;
             TryParseValue(reader.GetAttribute("type"), out type);
-            //reader.ReadStartElement();
 
             //
             // Title
