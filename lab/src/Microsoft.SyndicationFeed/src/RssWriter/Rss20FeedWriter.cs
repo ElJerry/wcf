@@ -73,6 +73,12 @@ namespace Microsoft.SyndicationFeed
                 _writer.WriteElementString(Rss20Constants.CategoryTag, category.Name);
             }
 
+            //Write Guid
+            if (!string.IsNullOrEmpty(item.Id))
+            {
+                await _writer.WriteElementStringAsync(null,Rss20Constants.GuidTag,null,item.Id);
+            }
+
             //Write pubdate
             if(!item.Published.Equals(new DateTimeOffset()))
             {

@@ -18,9 +18,9 @@ namespace Microsoft.SyndicationFeed
 
         Task WriteContent(ISyndicationContent content);
 
-        Task WriteStartDocument();
-
         Task WriteElementString(string name, string value);
+
+        Task WriteStartDocument();
 
         Task WriteEndDocument();
     }
