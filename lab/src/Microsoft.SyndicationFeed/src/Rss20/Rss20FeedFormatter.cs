@@ -201,8 +201,6 @@ namespace Microsoft.SyndicationFeed
             // Type
             string type = string.Empty;
             TryParseValue(reader.GetAttribute("type"), out type);
-
-            string name = reader.Name;
             //reader.ReadStartElement();
 
             //
@@ -218,8 +216,10 @@ namespace Microsoft.SyndicationFeed
                     TryParseValue(title, out uri);
                 }
             }
-
-            reader.Skip();
+            else
+            {
+                reader.Skip();
+            }
 
             return new SyndicationLink(uri) {
                 Title = title,
@@ -292,6 +292,15 @@ namespace Microsoft.SyndicationFeed
                 {
                     SyndicationPerson person = ParsePerson(reader);
                     person.RelationshipType = Rss20Constants.AuthorTag;
+
+                    contributors.Add(person);
+                }
+                //
+                // Managing Editor
+                else if (reader.IsStartElement(Rss20Constants.AuthorTag, Rss20Constants.Rss20Namespace))
+                {
+                    SyndicationPerson person = ParsePerson(reader);
+                    person.RelationshipType = Rss20Constants.ManagingEditorTag;
 
                     contributors.Add(person);
                 }
