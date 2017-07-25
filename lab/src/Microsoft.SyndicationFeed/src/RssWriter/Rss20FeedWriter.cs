@@ -67,8 +67,17 @@ namespace Microsoft.SyndicationFeed
                 }
             }
 
+            //Write Categories
+            foreach (var category in item.Categories)
+            {
+                _writer.WriteElementString(Rss20Constants.CategoryTag, category.Name);
+            }
 
-
+            //Write pubdate
+            if(!item.Published.Equals(new DateTimeOffset()))
+            {
+                _writer.WriteElementString(Rss20Constants.PubDateTag,item.Published.ToString());
+            }
         }
 
         public virtual async Task WriteLink(ISyndicationLink link)

@@ -46,7 +46,10 @@ namespace Microsoft.SyndicationFeed.Tests
 
                 await writer.WritePerson(person);
 
-                var item = new Rss20FeedFormatter().ParseItem("<item>\n         <title><![CDATA[Lorem ipsum 2017-07-06T20:25:00+00:00]]></title>\n         <description><![CDATA[Exercitation sit dolore mollit et est eiusmod veniam aute officia veniam ipsum.]]></description>\n         <link>http://example.com/test/1499372700</link>\n         <guid isPermaLink=\"true\">http://example.com/test/1499372700</guid>\n         <dc:creator xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><![CDATA[John Smith]]></dc:creator>\n         <pubDate>Thu, 06 Jul 2017 20:25:00 GMT</pubDate>\n      </item>");
+                var itemReader = XmlReader.Create(@"..\..\..\TestFeeds\rssitem.xml");
+                itemReader.MoveToContent();
+                string rawItem = itemReader.ReadOuterXml();
+                var item = new Rss20FeedFormatter().ParseItem(rawItem);
                 await writer.WriteItem(item);
 
 

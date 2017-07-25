@@ -201,15 +201,16 @@ namespace Microsoft.SyndicationFeed
             // Type
             string type = string.Empty;
             TryParseValue(reader.GetAttribute("type"), out type);
-            
-            reader.ReadStartElement();
+
+            string name = reader.Name;
+            //reader.ReadStartElement();
 
             //
             // Title
             string title = string.Empty;
             if (!reader.IsEmptyElement)
             {
-                title = reader.ReadContentAsString();
+                title = reader.ReadElementContentAsString();
 
                 // Url is the content, if not set as attribute
                 if (uri == null && !string.IsNullOrEmpty(title))
@@ -218,7 +219,7 @@ namespace Microsoft.SyndicationFeed
                 }
             }
 
-            reader.ReadEndElement();
+            reader.Skip();
 
             return new SyndicationLink(uri) {
                 Title = title,
