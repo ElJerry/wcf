@@ -19,8 +19,7 @@ namespace Microsoft.SyndicationFeed
 
         public virtual Task WriteCategory(ISyndicationCategory category)
         {
-            string name = category.Name;            
-            return _writer.WriteElementStringAsync(null,Rss20Constants.CategoryTag,null,name);            
+            return _writer.WriteElementStringAsync(null,Rss20Constants.CategoryTag,null, category.Name);            
         }
 
         public virtual Task WriteContent(ISyndicationContent content)
@@ -100,6 +99,7 @@ namespace Microsoft.SyndicationFeed
 
                 case Rss20Constants.EnclosureTag:
                     await _writer.WriteStartElementAsync(null,Rss20Constants.EnclosureTag,null);
+
                     //Attributes
                     await _writer.WriteAttributeStringAsync(null, Rss20Constants.UrlTag, null, link.Uri.OriginalString);
                     
@@ -137,7 +137,7 @@ namespace Microsoft.SyndicationFeed
         {
             if (string.IsNullOrEmpty(person.Email))
             {
-                throw new FormatException("Person doesn't contain email");
+                throw new FormatException("Person does not contain an email");
             }
 
             if(person.RelationshipType == Rss20Constants.AuthorTag)
