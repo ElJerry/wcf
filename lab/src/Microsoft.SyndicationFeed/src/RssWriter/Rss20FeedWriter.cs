@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -13,30 +17,61 @@ namespace Microsoft.SyndicationFeed
             _writer = writer;
         }
 
-        public async Task WriteCategory(ISyndicationCategory category)
+        public virtual async Task WriteCategory(ISyndicationCategory category)
         {
             string name = category.Name;            
             await _writer.WriteElementStringAsync(null,Rss20Constants.CategoryTag,null,name);            
         }
 
-        public Task WriteContent(ISyndicationContent content)
+        public virtual async Task WriteContent(ISyndicationContent content)
         {
-            throw new NotImplementedException();
+            await _writer.WriteRawAsync(content.RawContent);
+        }
+        
+        public virtual async Task WriteItem(ISyndicationItem item)
+        {
+            await _writer.WriteStartElementAsync(null,Rss20Constants.ItemTag,null); //Write <item> tag
+
+            //Write title
+            if (!string.IsNullOrEmpty(item.Title))
+            {
+                await _writer.WriteElementStringAsync(null, Rss20Constants.TitleTag, null, item.Title);
+            }
+
+            //Write links
+            foreach(var link in item.Links)
+            {
+                await WriteLink(link);
+            }
+
+            //Write description
+            if (!string.IsNullOrEmpty(item.Description))
+            {
+                await _writer.WriteElementStringAsync(null, Rss20Constants.DescriptionTag, null, item.Title);
+            }
+                       
+            //Write persons
+            foreach(var person in item.Contributors)
+            {
+                if(person.RelationshipType == Rss20Constants.AuthorTag)
+                {
+                    //check if email exists
+                    if (!string.IsNullOrEmpty(person.Email))
+                    {
+                        await _writer.WriteElementStringAsync(null, Rss20Constants.AuthorTag, null, person.Email);
+                    }
+                    else if (!string.IsNullOrEmpty(person.Name))
+                    {
+                        await _writer.WriteElementStringAsync(null, Rss20Constants.AuthorTag, null, person.Name);
+                    }
+                }
+            }
+
+
+
         }
 
-        public async Task WriteEndDocument()
-        {
-            await _writer.WriteEndElementAsync(); //channel
-            await _writer.WriteEndElementAsync(); //Rss
-            await _writer.WriteEndDocumentAsync();//xml 
-        }
-
-        public Task WriteItem(ISyndicationItem item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task WriteLink(ISyndicationLink link)
+        public virtual async Task WriteLink(ISyndicationLink link)
         {
             switch (link.RelationshipType)
             {
@@ -71,12 +106,15 @@ namespace Microsoft.SyndicationFeed
                     await _writer.WriteAttributeStringAsync(null, Rss20Constants.UrlTag, null, link.Uri.OriginalString);
                     await _writer.WriteEndElementAsync();
                     break;
+
+                default:
+                    break;
             }
         }
 
-        public Task WritePerson(ISyndicationPerson person)
+        public virtual async Task WritePerson(ISyndicationPerson person)
         {
-            throw new NotImplementedException();
+            await _writer.WriteElementStringAsync(null,Rss20Constants.AuthorTag,null,person.Email);
         }
 
         public async Task WriteStartDocument()
@@ -87,21 +125,11 @@ namespace Microsoft.SyndicationFeed
             await _writer.WriteStartElementAsync(null, Rss20Constants.ChannelTag, null);
         }
 
-        private void WriteStartTags()
+        public async Task WriteEndDocument()
         {
-            _writer.WriteStartDocument();
-            _writer.WriteStartElement(Rss20Constants.RssTag);
-            _writer.WriteAttributeString(Rss20Constants.VersionTag,Rss20Constants.Version);
-            _writer.WriteStartElement(Rss20Constants.ChannelTag);
-
-            _writer.WriteElementString("title", "some item values");
-
-            //TEST CLOSING TAGS
-            _writer.WriteEndElement();
-            _writer.WriteEndElement();
-            _writer.WriteEndDocument();
-
+            await _writer.WriteEndElementAsync(); //channel
+            await _writer.WriteEndElementAsync(); //Rss
+            await _writer.WriteEndDocumentAsync();//xml 
         }
-
     }
 }
