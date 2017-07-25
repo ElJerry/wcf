@@ -22,8 +22,9 @@ namespace Microsoft.SyndicationFeed.Tests
                 await writer.WriteStartDocument(); // Write initial tags
 
                 var title = new SyndicationContent("<title> My title </title>");
-
                 await writer.WriteContent(title);
+
+                await writer.WriteElementString("Crazy", "Train by ozzy");
 
                 var link = new SyndicationLink(new Uri("http://hello.com"))
                 {
@@ -48,10 +49,8 @@ namespace Microsoft.SyndicationFeed.Tests
 
                 var itemReader = XmlReader.Create(@"..\..\..\TestFeeds\rssitem.xml");
                 itemReader.MoveToContent();
-                string rawItem = itemReader.ReadOuterXml();
-                var item = new Rss20FeedFormatter().ParseItem(rawItem);
+                var item = new Rss20FeedFormatter().ParseItem(itemReader.ReadOuterXml());
                 await writer.WriteItem(item);
-
 
                 await writer.WriteEndDocument(); //write closing tags channel and rss.
                 xmlWriter.Flush();

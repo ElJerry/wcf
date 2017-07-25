@@ -20,6 +20,8 @@ namespace Microsoft.SyndicationFeed
 
         Task WriteStartDocument();
 
+        Task WriteElementString(string name, string value);
+
         Task WriteEndDocument();
     }
 }

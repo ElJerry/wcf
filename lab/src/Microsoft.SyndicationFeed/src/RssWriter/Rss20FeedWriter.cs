@@ -17,15 +17,15 @@ namespace Microsoft.SyndicationFeed
             _writer = writer;
         }
 
-        public virtual async Task WriteCategory(ISyndicationCategory category)
+        public virtual Task WriteCategory(ISyndicationCategory category)
         {
             string name = category.Name;            
-            await _writer.WriteElementStringAsync(null,Rss20Constants.CategoryTag,null,name);            
+            return _writer.WriteElementStringAsync(null,Rss20Constants.CategoryTag,null,name);            
         }
 
-        public virtual async Task WriteContent(ISyndicationContent content)
+        public virtual Task WriteContent(ISyndicationContent content)
         {
-            await _writer.WriteRawAsync(content.RawContent);
+            return _writer.WriteRawAsync(content.RawContent);
         }
         
         public virtual async Task WriteItem(ISyndicationItem item)
@@ -121,9 +121,14 @@ namespace Microsoft.SyndicationFeed
             }
         }
 
-        public virtual async Task WritePerson(ISyndicationPerson person)
+        public virtual Task WritePerson(ISyndicationPerson person)
         {
-            await _writer.WriteElementStringAsync(null,Rss20Constants.AuthorTag,null,person.Email);
+            return _writer.WriteElementStringAsync(null,Rss20Constants.AuthorTag,null,person.Email);
+        }
+
+        public Task WriteElementString(string name, string value)
+        {
+            return _writer.WriteElementStringAsync(null,name,null,value);
         }
 
         public async Task WriteStartDocument()
