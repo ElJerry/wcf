@@ -48,7 +48,8 @@ namespace Microsoft.SyndicationFeed.Tests
                 //Write a Person
                 var person = new SyndicationPerson()
                 {
-                    Email = "hero@test.com"
+                    Email = "hero@test.com",
+                    RelationshipType = "managingEditor"
                 };
 
                 await writer.WritePerson(person);

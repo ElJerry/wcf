@@ -119,6 +119,12 @@ namespace Microsoft.SyndicationFeed
                 case Rss20Constants.SourceTag:
                     await _writer.WriteStartElementAsync(null,Rss20Constants.SourceTag,null);
                     await _writer.WriteAttributeStringAsync(null, Rss20Constants.UrlTag, null, link.Uri.OriginalString);
+
+                    if (!string.IsNullOrEmpty(link.Title))
+                    {
+                        await _writer.WriteStringAsync(link.Title);
+                    }
+
                     await _writer.WriteEndElementAsync();
                     break;
 
@@ -129,7 +135,21 @@ namespace Microsoft.SyndicationFeed
 
         public virtual Task WritePerson(ISyndicationPerson person)
         {
-            return _writer.WriteElementStringAsync(null,Rss20Constants.AuthorTag,null,person.Email);
+            if (string.IsNullOrEmpty(person.Email))
+            {
+                throw new FormatException("Person doesn't contain email");
+            }
+
+            if(person.RelationshipType == Rss20Constants.AuthorTag)
+            {
+                return _writer.WriteElementStringAsync(null,Rss20Constants.AuthorTag,null,person.Email);
+            }
+            else if(person.RelationshipType == Rss20Constants.ManagingEditorTag)
+            {
+                return _writer.WriteElementStringAsync(null, Rss20Constants.ManagingEditorTag, null, person.Email);
+            }
+
+            throw new FormatException("The relationship type is not recognized");
         }
 
         public Task WriteElementString(string name, string value)

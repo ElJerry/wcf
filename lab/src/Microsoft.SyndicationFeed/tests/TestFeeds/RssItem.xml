@@ -8,5 +8,6 @@
   <author>Author@email.com</author>
   <guid isPermaLink="true">http://example.com/test/1499372700</guid>
   <pubDate>Thu, 06 Jul 2017 20:25:00 GMT</pubDate>
+  <source url="http://www.quotationspage.com/data/qotd.rss">Quotes of the Day</source>
   <enclosure url="http://testpage.com" length="123" type="audio/mp3"/>
 </item>
