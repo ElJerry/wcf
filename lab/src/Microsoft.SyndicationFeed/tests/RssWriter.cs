@@ -287,5 +287,28 @@ namespace Microsoft.SyndicationFeed.Tests
             var res = sb.ToString();
             Assert.True(res == "<?xml version=\"1.0\" encoding=\"utf-16\"?><rss version=\"2.0\"><channel><CustomTag>Custom Content</CustomTag></channel></rss>");
         }
+
+        [Fact]
+        public async Task Rss20Writer_UseNamespaces()
+        {
+            var sb = new StringBuilder();
+
+            using (XmlWriter xmlWriter = XmlWriter.Create(sb))
+            {
+                var n1 = new XmlNamespace("test1", new Uri("http://namespace1.com"));
+                var n2 = new XmlNamespace("test2", new Uri("http://namespace2.com"));
+                var namespaces = new List<XmlNamespace>() { n1 , n2 };
+
+                
+
+                var writer = new Rss20FeedWriter(xmlWriter, namespaces);
+
+                await writer.WriteValue("Hello", "World");
+                xmlWriter.Flush();
+            }
+
+            var res = sb.ToString();
+            Assert.True(res == "<?xml version=\"1.0\" encoding=\"utf-16\"?><rss xmlns:test1=\"http://namespace1.com/\" xmlns:test2=\"http://namespace2.com/\" version=\"2.0\"><channel><Hello>World</Hello></channel></rss>"    );
+        }
     }
 }

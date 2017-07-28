@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -10,19 +11,32 @@ namespace Microsoft.SyndicationFeed
 {
     public class Rss20FeedWriter : ISyndicationFeedWriter
     {
-        private XmlWriter _writer;
+        private XmlWriter _writer;        
 
         private bool _rssDocumentCreated = false;
 
+        private IEnumerable<XmlNamespace> _namespaces = null;
+
         public Rss20FeedWriter(XmlWriter writer)
-            : this(writer, new Rss20Formatter(writer.Settings))
+            : this(writer, null, new Rss20Formatter(writer.Settings))
         {
         }
 
         public Rss20FeedWriter(XmlWriter writer, ISyndicationFeedFormatter formatter)
+            : this(writer, null, formatter)
         {
-            _writer = writer ?? throw new ArgumentNullException(nameof(writer));
+        }
+
+        public Rss20FeedWriter(XmlWriter writer, IEnumerable<XmlNamespace> namespaces)
+            : this(writer, namespaces, new Rss20Formatter(writer.Settings))
+        {
+        }
+
+        public Rss20FeedWriter(XmlWriter writer, IEnumerable<XmlNamespace> namespaces, ISyndicationFeedFormatter formatter)
+        {
+            _writer = writer ??  throw new ArgumentNullException(nameof(writer));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+            _namespaces = namespaces; // optional
         }
 
         public ISyndicationFeedFormatter Formatter { get; private set; }
@@ -152,6 +166,16 @@ namespace Microsoft.SyndicationFeed
         {
             //Write <rss version="2.0">
             _writer.WriteStartElement(Rss20Constants.RssTag);
+
+            //Write namespaces
+            if(_namespaces != null)
+            {
+                foreach (var ns in _namespaces)
+                {
+                    _writer.WriteAttributeString("xmlns", ns.Prefix, null, ns.Uri.ToString());
+                }
+            }
+
             _writer.WriteAttributeString(Rss20Constants.VersionTag, Rss20Constants.Version);
             _writer.WriteStartElement(Rss20Constants.ChannelTag);
             _rssDocumentCreated = true;
