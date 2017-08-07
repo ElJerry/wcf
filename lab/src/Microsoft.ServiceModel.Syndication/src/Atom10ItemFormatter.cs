@@ -19,7 +19,6 @@ namespace Microsoft.ServiceModel.Syndication
     using System.Xml.Schema;
     using System.Xml.Serialization;
 
-    [TypeForwardedFrom("System.ServiceModel.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
     [XmlRoot(ElementName = Atom10Constants.EntryTag, Namespace = Atom10Constants.Atom10Namespace)]
     public class Atom10ItemFormatter : SyndicationItemFormatter
     {
@@ -38,11 +37,11 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (itemTypeToCreate == null)
             {
-                throw new ArgumentNullException("itemTypeToCreate");
+                throw new ArgumentNullException(nameof(itemTypeToCreate));
             }
             if (!typeof(SyndicationItem).IsAssignableFrom(itemTypeToCreate))
             {
-                throw new ArgumentException(String.Format(SR.InvalidObjectTypePassed, "itemTypeToCreate", "SyndicationItem"));
+                throw new ArgumentException(string.Format(SR.InvalidObjectTypePassed, nameof(itemTypeToCreate), nameof(SyndicationItem)));
             }
             _feedSerializer = new Atom10FeedFormatter();
             _feedSerializer.PreserveAttributeExtensions = _preserveAttributeExtensions = true;
@@ -97,55 +96,57 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
             return reader.IsStartElement(Atom10Constants.EntryTag, Atom10Constants.Atom10Namespace);
         }
 
-        public override async Task ReadFromAsync(XmlReader reader)
+        public override Task ReadFromAsync(XmlReader reader)
         {
             if (!CanRead(reader))
             {
-                throw new XmlException(String.Format(SR.UnknownItemXml, reader.LocalName, reader.NamespaceURI));
+                throw new XmlException(string.Format(SR.UnknownItemXml, reader.LocalName, reader.NamespaceURI));
             }
 
-            await ReadItem(reader);
+            return ReadItemAsync(reader);
         }
 
-        public override void WriteTo(XmlWriter writer)
+        public override async Task WriteToAsync(XmlWriter writer)
         {
             if (writer == null)
             {
-                throw new ArgumentNullException("writer");
+                throw new ArgumentNullException(nameof(writer));
             }
-            writer.WriteStartElement(Atom10Constants.EntryTag, Atom10Constants.Atom10Namespace);
-            WriteItem(writer);
-            writer.WriteEndElement();
+
+            writer = XmlWriterWrapper.CreateFromWriter(writer);
+
+            await writer.WriteStartElementAsync(Atom10Constants.EntryTag, Atom10Constants.Atom10Namespace);
+            await WriteItemAsync(writer);
+            await writer.WriteEndElementAsync();
         }
 
         protected override SyndicationItem CreateItemInstance()
         {
             return SyndicationItemFormatter.CreateItemInstance(_itemType);
         }
-
-        private async Task ReadItem(XmlReader reader)
+        
+        private Task ReadItemAsync(XmlReader reader)
         {
             SetItem(CreateItemInstance());
-            await _feedSerializer.ReadItemFrom(XmlReaderWrapper.CreateFromReader(XmlDictionaryReader.CreateDictionaryReader(reader)), this.Item);
+            return _feedSerializer.ReadItemFromAsync(XmlReaderWrapper.CreateFromReader(XmlDictionaryReader.CreateDictionaryReader(reader)), this.Item);
         }
 
-        private void WriteItem(XmlWriter writer)
+        private Task WriteItemAsync(XmlWriter writer)
         {
             if (this.Item == null)
             {
                 throw new InvalidOperationException(SR.ItemFormatterDoesNotHaveItem);
             }
             XmlDictionaryWriter w = XmlDictionaryWriter.CreateDictionaryWriter(writer);
-            _feedSerializer.WriteItemContents(w, this.Item);
+            return _feedSerializer.WriteItemContentsAsync(w, this.Item);
         }
     }
 
-    [TypeForwardedFrom("System.ServiceModel.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
     [XmlRoot(ElementName = Atom10Constants.EntryTag, Namespace = Atom10Constants.Atom10Namespace)]
     public class Atom10ItemFormatter<TSyndicationItem> : Atom10ItemFormatter
         where TSyndicationItem : SyndicationItem, new()

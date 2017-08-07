@@ -21,7 +21,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (documentToWrite == null)
             {
-                throw new ArgumentNullException("documentToWrite");
+                throw new ArgumentNullException(nameof(documentToWrite));
             }
             _document = documentToWrite;
         }
@@ -35,8 +35,8 @@ namespace Microsoft.ServiceModel.Syndication
         { get; }
 
         public abstract Task<bool> CanReadAsync(XmlReader reader);
-        public abstract Task ReadFrom(XmlReader reader);
-        public abstract void WriteTo(XmlWriter writer);
+        public abstract Task ReadFromAsync(XmlReader reader);
+        public abstract Task WriteTo(XmlWriter writer);
 
         protected virtual InlineCategoriesDocument CreateInlineCategoriesDocument()
         {

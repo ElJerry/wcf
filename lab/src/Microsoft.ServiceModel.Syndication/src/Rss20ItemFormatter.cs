@@ -33,11 +33,11 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (itemTypeToCreate == null)
             {
-                throw new ArgumentNullException("itemTypeToCreate");
+                throw new ArgumentNullException(nameof(itemTypeToCreate));
             }
             if (!typeof(SyndicationItem).IsAssignableFrom(itemTypeToCreate))
             {
-                throw new ArgumentException(String.Format(SR.InvalidObjectTypePassed, "itemTypeToCreate", "SyndicationItem"));
+                throw new ArgumentException(string.Format(SR.InvalidObjectTypePassed, nameof(itemTypeToCreate), nameof(SyndicationItem)));
             }
             _feedSerializer = new Rss20FeedFormatter();
             _feedSerializer.PreserveAttributeExtensions = _preserveAttributeExtensions = true;
@@ -109,62 +109,65 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
 
             return reader.IsStartElement(Rss20Constants.ItemTag, Rss20Constants.Rss20Namespace);
         }
 
         
-        void WriteXml(XmlWriter writer)
+        async Task WriteXml(XmlWriter writer)
         {
             if (writer == null)
             {
-                throw new ArgumentNullException("writer");
+                throw new ArgumentNullException(nameof(writer));
             }
-            WriteItem(writer);
+            await WriteItem(writer);
         }
 
-        public override async Task ReadFromAsync(XmlReader reader)
+        public override Task ReadFromAsync(XmlReader reader)
         {
             if (!CanRead(reader))
             {
-                throw new XmlException(String.Format(SR.UnknownItemXml, reader.LocalName, reader.NamespaceURI));
+                throw new XmlException(string.Format(SR.UnknownItemXml, reader.LocalName, reader.NamespaceURI));
             }
 
-            await ReadItemAsync(XmlReaderWrapper.CreateFromReader(reader));
+            return ReadItemAsync(XmlReaderWrapper.CreateFromReader(reader));
         }
 
-        public override void WriteTo(XmlWriter writer)
+        public override async Task WriteToAsync(XmlWriter writer)
         {
             if (writer == null)
             {
-                throw new ArgumentNullException("writer");
+                throw new ArgumentNullException(nameof(writer));
             }
-            writer.WriteStartElement(Rss20Constants.ItemTag, Rss20Constants.Rss20Namespace);
-            WriteItem(writer);
-            writer.WriteEndElement();
+
+            writer = XmlWriterWrapper.CreateFromWriter(writer);
+
+            await writer.WriteStartElementAsync(Rss20Constants.ItemTag, Rss20Constants.Rss20Namespace);
+            await WriteItem(writer);
+            await writer.WriteEndElementAsync();
         }
 
         protected override SyndicationItem CreateItemInstance()
         {
             return SyndicationItemFormatter.CreateItemInstance(_itemType);
         }
-
-        private async Task ReadItemAsync(XmlReaderWrapper reader)
+        
+        private Task ReadItemAsync(XmlReaderWrapper reader)
         {
             SetItem(CreateItemInstance());
-            await _feedSerializer.ReadItemFromAsync(XmlReaderWrapper.CreateFromReader(XmlDictionaryReader.CreateDictionaryReader(reader)), this.Item);
+            return _feedSerializer.ReadItemFromAsync(XmlReaderWrapper.CreateFromReader(XmlDictionaryReader.CreateDictionaryReader(reader)), this.Item);
         }
 
-        private void WriteItem(XmlWriter writer)
+        private Task WriteItem(XmlWriter writer)
         {
             if (this.Item == null)
             {
                 throw new InvalidOperationException(SR.ItemFormatterDoesNotHaveItem);
             }
             XmlDictionaryWriter w = XmlDictionaryWriter.CreateDictionaryWriter(writer);
-            _feedSerializer.WriteItemContents(w, this.Item);
+            return _feedSerializer.WriteItemContentsAsync(w, this.Item);
         }
     }
 

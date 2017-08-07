@@ -10,7 +10,6 @@ namespace Microsoft.ServiceModel.Syndication
     using System.Threading.Tasks;
     using System.Xml;
 
-    [TypeForwardedFrom("System.ServiceModel.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
     [DataContract]
     public abstract class ServiceDocumentFormatter
     {
@@ -23,7 +22,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (documentToWrite == null)
             {
-                throw new ArgumentNullException("documentToWrite");
+                throw new ArgumentNullException(nameof(documentToWrite));
             }
             _document = documentToWrite;
         }
@@ -38,13 +37,13 @@ namespace Microsoft.ServiceModel.Syndication
 
         public abstract Task<bool> CanReadAsync(XmlReader reader);
         public abstract Task ReadFromAsync(XmlReader reader);
-        public abstract void WriteTo(XmlWriter writer);
+        public abstract Task WriteToAsync(XmlWriter writer);
 
         internal static void LoadElementExtensions(XmlBuffer buffer, XmlDictionaryWriter writer, CategoriesDocument categories)
         {
             if (categories == null)
             {
-                throw new ArgumentNullException("categories");
+                throw new ArgumentNullException(nameof(categories));
             }
             Atom10FeedFormatter.CloseBuffer(buffer, writer);
             categories.LoadElementExtensions(buffer);
@@ -54,7 +53,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (collection == null)
             {
-                throw new ArgumentNullException("collection");
+                throw new ArgumentNullException(nameof(collection));
             }
             Atom10FeedFormatter.CloseBuffer(buffer, writer);
             collection.LoadElementExtensions(buffer);
@@ -64,7 +63,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (workspace == null)
             {
-                throw new ArgumentNullException("workspace");
+                throw new ArgumentNullException(nameof(workspace));
             }
             Atom10FeedFormatter.CloseBuffer(buffer, writer);
             workspace.LoadElementExtensions(buffer);
@@ -74,7 +73,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
             Atom10FeedFormatter.CloseBuffer(buffer, writer);
             document.LoadElementExtensions(buffer);
@@ -84,7 +83,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (inlineCategories == null)
             {
-                throw new ArgumentNullException("inlineCategories");
+                throw new ArgumentNullException(nameof(inlineCategories));
             }
             return inlineCategories.CreateCategory();
         }
@@ -93,7 +92,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (workspace == null)
             {
-                throw new ArgumentNullException("workspace");
+                throw new ArgumentNullException(nameof(workspace));
             }
             return workspace.CreateResourceCollection();
         }
@@ -112,7 +111,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
             return document.CreateWorkspace();
         }
@@ -121,7 +120,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (categories == null)
             {
-                throw new ArgumentNullException("categories");
+                throw new ArgumentNullException(nameof(categories));
             }
 
             categories.LoadElementExtensions(XmlReaderWrapper.CreateFromReader(reader), maxExtensionSize);
@@ -131,7 +130,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (collection == null)
             {
-                throw new ArgumentNullException("collection");
+                throw new ArgumentNullException(nameof(collection));
             }
 
             collection.LoadElementExtensions(XmlReaderWrapper.CreateFromReader(reader), maxExtensionSize);
@@ -141,7 +140,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (workspace == null)
             {
-                throw new ArgumentNullException("workspace");
+                throw new ArgumentNullException(nameof(workspace));
             }
 
             workspace.LoadElementExtensions(XmlReaderWrapper.CreateFromReader(reader), maxExtensionSize);
@@ -151,7 +150,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
             document.LoadElementExtensions(XmlReaderWrapper.CreateFromReader(reader), maxExtensionSize);
@@ -161,7 +160,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
             return document.TryParseAttribute(name, ns, value, version);
@@ -171,7 +170,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (collection == null)
             {
-                throw new ArgumentNullException("collection");
+                throw new ArgumentNullException(nameof(collection));
             }
 
             return collection.TryParseAttribute(name, ns, value, version);
@@ -181,7 +180,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (categories == null)
             {
-                throw new ArgumentNullException("categories");
+                throw new ArgumentNullException(nameof(categories));
             }
 
             return categories.TryParseAttribute(name, ns, value, version);
@@ -191,7 +190,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (workspace == null)
             {
-                throw new ArgumentNullException("workspace");
+                throw new ArgumentNullException(nameof(workspace));
             }
 
             return workspace.TryParseAttribute(name, ns, value, version);
@@ -201,7 +200,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (collection == null)
             {
-                throw new ArgumentNullException("collection");
+                throw new ArgumentNullException(nameof(collection));
             }
 
             return collection.TryParseElement(XmlReaderWrapper.CreateFromReader(reader), version);
@@ -211,7 +210,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
             return document.TryParseElement(XmlReaderWrapper.CreateFromReader(reader), version);
@@ -221,7 +220,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (workspace == null)
             {
-                throw new ArgumentNullException("workspace");
+                throw new ArgumentNullException(nameof(workspace));
             }
 
             return workspace.TryParseElement(XmlReaderWrapper.CreateFromReader(reader), version);
@@ -231,7 +230,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (categories == null)
             {
-                throw new ArgumentNullException("categories");
+                throw new ArgumentNullException(nameof(categories));
             }
 
             return categories.TryParseElement(XmlReaderWrapper.CreateFromReader(reader), version);
@@ -241,80 +240,80 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
-            document.WriteAttributeExtensions(writer, version);
+            document.WriteAttributeExtensionsAsync(writer, version);
         }
 
         protected static void WriteAttributeExtensions(XmlWriter writer, Workspace workspace, string version)
         {
             if (workspace == null)
             {
-                throw new ArgumentNullException("workspace");
+                throw new ArgumentNullException(nameof(workspace));
             }
 
             workspace.WriteAttributeExtensions(writer, version);
         }
 
-        protected static void WriteAttributeExtensions(XmlWriter writer, ResourceCollectionInfo collection, string version)
+        protected static Task WriteAttributeExtensionsAsync(XmlWriter writer, ResourceCollectionInfo collection, string version)
         {
             if (collection == null)
             {
-                throw new ArgumentNullException("collection");
+                throw new ArgumentNullException(nameof(collection));
             }
 
-            collection.WriteAttributeExtensions(writer, version);
+            return collection.WriteAttributeExtensionsAsync(writer, version);
         }
 
-        protected static void WriteAttributeExtensions(XmlWriter writer, CategoriesDocument categories, string version)
+        protected static Task WriteAttributeExtensionsAsync(XmlWriter writer, CategoriesDocument categories, string version)
         {
             if (categories == null)
             {
-                throw new ArgumentNullException("categories");
+                throw new ArgumentNullException(nameof(categories));
             }
 
-            categories.WriteAttributeExtensions(writer, version);
+            return categories.WriteAttributeExtensionsAsync(writer, version);
         }
 
-        protected static void WriteElementExtensions(XmlWriter writer, ServiceDocument document, string version)
+        protected static Task WriteElementExtensionsAsync(XmlWriter writer, ServiceDocument document, string version)
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
-            document.WriteElementExtensions(writer, version);
+            return document.WriteElementExtensionsAsync(writer, version);
         }
 
-        protected static void WriteElementExtensions(XmlWriter writer, Workspace workspace, string version)
+        protected static Task WriteElementExtensionsAsync(XmlWriter writer, Workspace workspace, string version)
         {
             if (workspace == null)
             {
-                throw new ArgumentNullException("workspace");
+                throw new ArgumentNullException(nameof(workspace));
             }
 
-            workspace.WriteElementExtensions(writer, version);
+            return workspace.WriteElementExtensionsAsync(writer, version);
         }
 
-        protected static void WriteElementExtensions(XmlWriter writer, ResourceCollectionInfo collection, string version)
+        protected static Task WriteElementExtensionsAsync(XmlWriter writer, ResourceCollectionInfo collection, string version)
         {
             if (collection == null)
             {
-                throw new ArgumentNullException("collection");
+                throw new ArgumentNullException(nameof(collection));
             }
 
-            collection.WriteElementExtensions(writer, version);
+            return collection.WriteElementExtensionsAsync(writer, version);
         }
 
-        protected static void WriteElementExtensions(XmlWriter writer, CategoriesDocument categories, string version)
+        protected static Task WriteElementExtensionsAsync(XmlWriter writer, CategoriesDocument categories, string version)
         {
             if (categories == null)
             {
-                throw new ArgumentNullException("categories");
+                throw new ArgumentNullException(nameof(categories));
             }
 
-            categories.WriteElementExtensions(writer, version);
+            return categories.WriteElementExtensionsAsync(writer, version);
         }
 
         protected virtual ServiceDocument CreateDocumentInstance()

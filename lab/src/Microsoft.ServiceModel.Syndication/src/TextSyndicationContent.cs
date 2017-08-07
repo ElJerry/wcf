@@ -9,7 +9,6 @@ namespace Microsoft.ServiceModel.Syndication
     using System.Xml;
 
     // NOTE: This class implements Clone so if you add any members, please update the copy ctor
-    [TypeForwardedFrom("System.ServiceModel.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
     public class TextSyndicationContent : SyndicationContent
     {
         private string _text;
@@ -23,7 +22,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (!TextSyndicationContentKindHelper.IsDefined(textKind))
             {
-                throw new ArgumentOutOfRangeException("textKind");
+                throw new ArgumentOutOfRangeException(nameof(textKind));
             }
             _text = text;
             _textKind = textKind;
@@ -34,7 +33,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
             _text = source._text;
             _textKind = source._textKind;

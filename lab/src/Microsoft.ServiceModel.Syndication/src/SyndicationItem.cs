@@ -52,12 +52,10 @@ namespace Microsoft.ServiceModel.Syndication
             }
 
             _content = content;
-
             if (itemAlternateLink != null)
             {
                 this.Links.Add(SyndicationLink.CreateAlternateLink(itemAlternateLink));
             }
-
             _id = id;
             _lastUpdatedTime = lastUpdatedTime;
         }
@@ -66,9 +64,8 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
-
             _extensions = source._extensions.Clone();
             _authors = FeedUtils.ClonePersons(source._authors);
             _categories = FeedUtils.CloneCategories(source._categories);
@@ -84,7 +81,6 @@ namespace Microsoft.ServiceModel.Syndication
                 _sourceFeed = source._sourceFeed.Clone(false);
                 _sourceFeed.Items = new Collection<SyndicationItem>();
             }
-
             _summary = FeedUtils.CloneTextContent(source._summary);
             _baseUri = source._baseUri;
             _title = FeedUtils.CloneTextContent(source._title);
@@ -202,25 +198,18 @@ namespace Microsoft.ServiceModel.Syndication
             set { _title = value; }
         }
 
-        public static async Task<SyndicationItem> LoadAsync(XmlReader reader)
+        public static Task<SyndicationItem> LoadAsync(XmlReader reader)
         {
-            return await LoadAsync<SyndicationItem>(reader);
+            return LoadAsync<SyndicationItem>(reader);
         }
-
+        
         public static async Task<TSyndicationItem> LoadAsync<TSyndicationItem>(XmlReader reader)
             where TSyndicationItem : SyndicationItem, new()
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
-
-            //Atom10ItemFormatter<TSyndicationItem> atomSerializer = new Atom10ItemFormatter<TSyndicationItem>();
-            //if (atomSerializer.CanRead(reader))
-            //{
-            //    atomSerializer.ReadFrom(reader);
-            //    return atomSerializer.Item as TSyndicationItem;
-            //}
 
             Rss20ItemFormatter<TSyndicationItem> rssSerializer = new Rss20ItemFormatter<TSyndicationItem>();
 
@@ -230,7 +219,7 @@ namespace Microsoft.ServiceModel.Syndication
                 return rssSerializer.Item as TSyndicationItem;
             }
 
-            throw new XmlException(String.Format(SR.UnknownItemXml, reader.LocalName, reader.NamespaceURI));
+            throw new XmlException(string.Format(SR.UnknownItemXml, reader.LocalName, reader.NamespaceURI));
         }
 
 
@@ -238,7 +227,7 @@ namespace Microsoft.ServiceModel.Syndication
         {
             if (permalink == null)
             {
-                throw new ArgumentNullException("permalink");
+                throw new ArgumentNullException(nameof(permalink));
             }
             this.Id = permalink.AbsoluteUri;
             this.Links.Add(SyndicationLink.CreateAlternateLink(permalink));
@@ -264,14 +253,14 @@ namespace Microsoft.ServiceModel.Syndication
             return new Rss20ItemFormatter(this, serializeExtensionsAsAtom);
         }
 
-        public void SaveAsAtom10(XmlWriter writer)
+        public Task SaveAsAtom10(XmlWriter writer)
         {
-            this.GetAtom10Formatter().WriteTo(writer);
+            return GetAtom10Formatter().WriteToAsync(writer);
         }
 
-        public void SaveAsRss20(XmlWriter writer)
+        public Task SaveAsRss20(XmlWriter writer)
         {
-            this.GetRss20Formatter().WriteTo(writer);
+            return GetRss20Formatter().WriteToAsync(writer);
         }
 
         protected internal virtual SyndicationCategory CreateCategory()
@@ -305,14 +294,14 @@ namespace Microsoft.ServiceModel.Syndication
             return false;
         }
 
-        protected internal virtual void WriteAttributeExtensions(XmlWriter writer, string version)
+        protected internal virtual Task WriteAttributeExtensionsAsync(XmlWriter writer, string version)
         {
-            _extensions.WriteAttributeExtensions(writer);
+            return _extensions.WriteAttributeExtensionsAsync(writer);
         }
 
-        protected internal virtual void WriteElementExtensions(XmlWriter writer, string version)
+        protected internal virtual Task WriteElementExtensionsAsync(XmlWriter writer, string version)
         {
-            _extensions.WriteElementExtensions(writer);
+            return _extensions.WriteElementExtensionsAsync(writer);
         }
 
         internal void LoadElementExtensions(XmlReader readerOverUnparsedExtensions, int maxExtensionSize)
