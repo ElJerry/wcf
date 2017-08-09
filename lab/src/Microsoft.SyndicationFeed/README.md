@@ -15,7 +15,7 @@ SyndicationFeed provides an easy way to read and write Rss 2.0 and Atom Feeds.
 * To run the tests open the Test Explorer and click "Run All" or run each test individually.
 
 # Examples
-* A folder with different usage examples can be found [here](#).
+* A folder with different usage examples can be found [here](examples).
 
 ### Create an RssReader ###
 ```
