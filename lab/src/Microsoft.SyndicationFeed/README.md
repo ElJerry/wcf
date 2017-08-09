@@ -66,7 +66,6 @@ using (var xmlReader = XmlReader.Create(filePath))
 var sw = new StringWriter();
 using (XmlWriter xmlWriter = XmlWriter.Create(sw))
 {
-    var formatter = new Rss20Formatter();
     var writer = new Rss20FeedWriter(xmlWriter);
       
     // Create item
