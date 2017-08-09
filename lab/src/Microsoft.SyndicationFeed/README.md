@@ -11,8 +11,9 @@ SyndicationFeed provides an easy way to read and write Rss 2.0 and Atom Syndicat
 
 ### Running and Writing Tests:
 * Open the solution in Visual Studio 2017.
-* Test are located in the Tests project.
-* Create a new class or open an existing one, create a method with the [Fact] attribute.
+* Open the Tests project.
+* Create a new class or open an existing one.
+* Create a method with the [Fact] attribute.
 * To run the tests open the Test Explorer and click "Run All" or run each test individually.
 
 
