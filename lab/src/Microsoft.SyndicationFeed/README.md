@@ -1,6 +1,5 @@
-# SyndicationFeed
-SyndicationFeed provides an easy way to read and write Rss 2.0 and Atom Syndication Feeds.
-
+# Microsoft.SyndicationFeed
+Microsoft.SyndicationFeed provides APIs similar to .NETs own XML Reader to simplify the reading and writing of RSS 2.0 and Atom syndication feeds. The syndication feed readers and writers were developed with extensiblity and customization in mind to allow consumers to support their own custom feed elements. The syndication feed reader parses items on demand rather than in one large chunk, which enables this library to be used asynchronously on syndication feeds of arbitrary size.
 
 ### Requirements:
 * [Visual Studio 2017](https://www.visualstudio.com/vs/whatsnew/)
@@ -9,18 +8,16 @@ SyndicationFeed provides an easy way to read and write Rss 2.0 and Atom Syndicat
 ### Building:
 * The solution will build in Visual Studio 2017 after cloning.
 
-### Running and Writing Tests:
+### Running Tests:
 * Open the solution in Visual Studio 2017.
 * Open the Tests project.
-* Create a new class or open an existing one.
-* Create a method with the [Fact] attribute.
-* To run the tests open the Test Explorer and click "Run All" or run each test individually.
+* Open the Test Explorer and click "Run All" or run each test individually.
 
 
 # Examples
-* A folder with different usage examples can be found [here](examples).
+A folder with different usage examples can be found [here](examples).
 
-### Create RssReader and Fead a Feed ###
+### Create an RssReader and Read a Feed ###
 ```
 using (var xmlReader = XmlReader.Create(filePath))
 {
@@ -64,7 +61,7 @@ using (var xmlReader = XmlReader.Create(filePath))
 }
 ```
 
-### Create RssWriter and Write Rss Item ###
+### Create an RssWriter and Write an Rss Item ###
 ```
 var sw = new StringWriter();
 using (XmlWriter xmlWriter = XmlWriter.Create(sw))
