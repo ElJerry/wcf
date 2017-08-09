@@ -72,6 +72,7 @@ namespace Microsoft.SyndicationFeed.Rss
         [Fact]
         public async Task Rss20Writer_WriteImage()
         {
+            Uri uri = new Uri("http://testuriforlink.com");
 
             var sw = new StringWriterWithEncoding(Encoding.UTF8);
 
@@ -80,15 +81,11 @@ namespace Microsoft.SyndicationFeed.Rss
 
                 Rss20FeedWriter writer = new Rss20FeedWriter(xmlWriter, new Rss20Formatter(xmlWriter.Settings));
 
-                Uri url = new Uri("http://testuriforimage.com");
-                Uri urlForLink = new Uri("http://testuriforlink.com");
-                SyndicationLink link = new SyndicationLink(urlForLink, Rss20LinkTypes.Alternate);
-
-                SyndicationImage image = new SyndicationImage(url)
+                var image = new SyndicationImage(uri)
                 {
                     Title = "Testing image title",
                     Description = "testing image description",
-                    Link = link
+                    Link = new SyndicationLink(uri)
                 };
 
                 await writer.Write(image);
