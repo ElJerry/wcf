@@ -14,44 +14,75 @@ SyndicationFeed provides an easy way to read and write Rss 2.0 and Atom Feeds.
 * To write a test create a new class or open an existing one, create a method with the [Fact] attribute.
 * To run the tests open the Test Explorer and click "Run All" or run each test individually.
 
-# Examples
-* A folder with different usage examples can be found [here](examples).
 
-### Create an RssReader ###
+# Examples
+* A folder with different usage examples can be found [here](#).
+
+### Create RssReader and read a feed ###
 ```
-using (var xmlReader = XmlReader.Create(filePath, new XmlReaderSettings() { Async = true }))
+using (var xmlReader = XmlReader.Create(filePath))
 {
-    var reader = new Rss20FeedReader(xmlReader);
+    var feedReader = new Rss20FeedReader(xmlReader);
+
+    while(await feedReader.Read())
+    {
+        switch (feedReader.ElementType)
+        {
+            // Read category
+            case SyndicationElementType.Category:
+                ISyndicationCategory category = await feedReader.ReadCategory();
+                break;
+
+            // Read Image
+            case SyndicationElementType.Image:
+                ISyndicationImage image = await feedReader.ReadImage();
+                break;
+
+            // Read Item
+            case SyndicationElementType.Item:
+                ISyndicationItem item = await feedReader.ReadItem();
+                break;
+
+            // Read link
+            case SyndicationElementType.Link:
+                ISyndicationLink link = await feedReader.ReadLink();
+                break;
+
+            // Read Person
+            case SyndicationElementType.Person:
+                ISyndicationPerson person = await feedReader.ReadPerson();
+                break;
+
+            // Read content
+            default:
+                ISyndicationContent content = await feedReader.ReadContent();
+                break;
+        }
+    }
 }
 ```
 
-
-### Read and Rss Feed ###
+### Create RssWriter and Write Rss Item ###
 ```
-var reader = new Rss20FeedReader(xmlReader);
-while (await reader.Read())
+var sw = new StringWriter();
+using (XmlWriter xmlWriter = XmlWriter.Create(sw))
 {
-    switch (reader.ElementType)
+    var formatter = new Rss20Formatter();
+    var writer = new Rss20FeedWriter(xmlWriter);
+      
+    // Create item
+    var item = new SyndicationItem()
     {
-        case SyndicationElementType.Link:
-            ISyndicationLink link = await reader.ReadLink();
-            break;
+        Title = "Rss Writer Avaliable",
+        Description = "The new Rss Writer is now open source!",
+        Id = "https://github.com/dotnet/wcf/tree/lab/lab/src/Microsoft.SyndicationFeed/src",
+        Published = DateTimeOffset.UtcNow
+    };
 
-        case SyndicationElementType.Item:
-            ISyndicationItem item = await reader.ReadItem();
-            break;
+    item.AddCategory(new SyndicationCategory("Technology"));
+    item.AddContributor(new SyndicationPerson() { Email = "test@mail.com" });
 
-        case SyndicationElementType.Person:
-            ISyndicationPerson person = await reader.ReadPerson();
-            break;
-
-        case SyndicationElementType.Image:
-            ISyndicationImage image = await reader.ReadImage();
-            break;
-
-        default:
-            ISyndicationContent content = await reader.ReadContent();
-            break;
-    }
+    await writer.Write(item);
+    xmlWriter.Flush();
 }
 ```
