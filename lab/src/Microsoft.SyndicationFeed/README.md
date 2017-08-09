@@ -1,5 +1,6 @@
 # SyndicationFeed
-SyndicationFeed provides an easy way to read and write Rss 2.0 and Atom Feeds.
+SyndicationFeed provides an easy way to read and write Rss 2.0 and Atom Syndication Feeds.
+
 
 ### Requirements:
 * [Visual Studio 2017](https://www.visualstudio.com/vs/whatsnew/)
@@ -11,14 +12,14 @@ SyndicationFeed provides an easy way to read and write Rss 2.0 and Atom Feeds.
 ### Running and Writing Tests:
 * Open the solution in Visual Studio 2017.
 * Test are located in the Tests project.
-* To write a test create a new class or open an existing one, create a method with the [Fact] attribute.
+* Create a new class or open an existing one, create a method with the [Fact] attribute.
 * To run the tests open the Test Explorer and click "Run All" or run each test individually.
 
 
 # Examples
 * A folder with different usage examples can be found [here](#).
 
-### Create RssReader and read a feed ###
+### Create RssReader and Fead a Feed ###
 ```
 using (var xmlReader = XmlReader.Create(filePath))
 {
