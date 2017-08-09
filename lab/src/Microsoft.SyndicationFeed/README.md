@@ -17,7 +17,7 @@ SyndicationFeed provides an easy way to read and write Rss 2.0 and Atom Syndicat
 
 
 # Examples
-* A folder with different usage examples can be found [here](#).
+* A folder with different usage examples can be found [here](examples).
 
 ### Create RssReader and Fead a Feed ###
 ```
