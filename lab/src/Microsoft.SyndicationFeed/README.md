@@ -10,12 +10,12 @@ Microsoft.SyndicationFeed provides APIs similar to .NETs own XML Reader to simpl
 
 ### Running Tests:
 * Open the solution in Visual Studio 2017.
-* Open the Tests project.
+* Build the Tests project.
 * Open the Test Explorer and click "Run All" or run each test individually.
 
 
 # Examples
-A folder with different usage examples can be found [here](examples).
+A folder with examples can be found [here](examples).
 
 ### Create an RssReader and Read a Feed ###
 ```
