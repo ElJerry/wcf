@@ -10,9 +10,7 @@ namespace Microsoft.SyndicationFeed
     {
         public static ISyndicationContent ReadSyndicationContent(this XmlReader reader)
         {
-            var content = new SyndicationContent(reader.Name);
-
-            content.Namespace = reader.NamespaceURI;
+            var content = new SyndicationContent(reader.Name, reader.NamespaceURI, null);
 
             //
             // Attributes
@@ -118,7 +116,7 @@ namespace Microsoft.SyndicationFeed
 
         public static void WriteSyndicationAttribute(this XmlWriter writer, ISyndicationAttribute attr)
         {
-            if (!string.IsNullOrEmpty(attr.Namespace))
+            if (attr.Namespace != null)
             {
                 XmlUtils.SplitName(attr.Name, out string prefix, out string localName);
 

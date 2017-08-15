@@ -68,13 +68,13 @@ namespace Microsoft.SyndicationFeed
 
         public static Task WriteRaw(XmlWriter writer, string content)
         {
-
             if (writer.Settings.Async)
             {
                 return writer.WriteRawAsync(content);
             }
 
             writer.WriteRaw(content);
+
             return Task.CompletedTask;
         }
 
